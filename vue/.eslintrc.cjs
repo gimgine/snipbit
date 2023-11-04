@@ -20,7 +20,8 @@ module.exports = {
         code: 150
       }
     ],
-    'vue/comment-directive': 'off'
+    'vue/comment-directive': 'off',
+    'vue/component-name-in-template-casing': ['error', 'kebab-case']
   },
   env: {
     node: true

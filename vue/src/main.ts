@@ -6,10 +6,7 @@ import PrimeVue from 'primevue/config';
 import App from './App.vue';
 import router from './router';
 
-import 'tailwindcss/base.css';
-import 'tailwindcss/components.css';
-import 'tailwindcss/utilities.css';
-import 'primevue/resources/themes/soho-dark/theme.css';
+import './styles.css';
 
 const app = createApp(App);
 const pinia = createPinia();

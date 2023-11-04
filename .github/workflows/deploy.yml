@@ -3,7 +3,7 @@ name: Deploy Vue App
 on:
   push:
     branches:
-      - main  # Change this to your main branch name
+      - main # Change this to your main branch name
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # Change this to your desired Node.js version
+          node-version: 18 # Change this to your desired Node.js version
 
       - name: Install Dependencies and Build
         run: |
@@ -30,16 +30,16 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./codelab/pb_public/
+          server-dir: ./tigerhacks/pb_public/
           local-dir: ./vue/dist/
           dangerous-clean-slate: true
 
-      - name: Deploy pb_hooks to PocketHost
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./codelab/pb_hooks/
-          local-dir: ./pocketbase/pb_hooks/
-          dangerous-clean-slate: true
+      # - name: Deploy pb_hooks to PocketHost
+      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      #   with:
+      #     server: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USERNAME }}
+      #     password: ${{ secrets.FTP_PASSWORD }}
+      #     server-dir: ./tigerhacks/pb_hooks/
+      #     local-dir: ./pocketbase/pb_hooks/
+      #     dangerous-clean-slate: true

@@ -1,0 +1,45 @@
+name: Deploy Vue App
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  # Change this to your desired Node.js version
+
+      - name: Install Dependencies and Build
+        run: |
+          cd vue
+          npm ci
+          npm run build
+
+      - name: Deploy Vue to PocketHost
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./codelab/pb_public/
+          local-dir: ./vue/dist/
+          dangerous-clean-slate: true
+
+      - name: Deploy pb_hooks to PocketHost
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./codelab/pb_hooks/
+          local-dir: ./pocketbase/pb_hooks/
+          dangerous-clean-slate: true

@@ -1,8 +1,7 @@
 <template>
-  <span class="p-input-icon-left">
-    <i class="pi pi-search" />
-    <InputText placeholder="Search" />
-  </span>
+  <div class="flex justify-center py-3">
+    <div class="flex justify-center gap-4"></div>
+  </div>
 </template>
 
 <script setup lang="ts">

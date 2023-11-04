@@ -1,3 +1,7 @@
 <template>
-  <h1 class="flex items-center h-[100vh] justify-center">Hello World!</h1>
+  <div class="w-full h-full flex justify-center items-center bg-[var(--surface-ground)]">
+  </div>
 </template>
+
+<script setup lang="ts">
+</script>

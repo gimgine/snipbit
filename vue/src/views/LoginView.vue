@@ -77,7 +77,9 @@ const authWithOAuth = (provider: string) => {
     .then((res) => {
       if (res.meta?.isNew) {
         isNewUser.value = true;
-        username.value = res.meta.username ?? '';
+        username.value.text = res.meta.username ?? '';
+      } else {
+        router.push({ name: 'home' });
       }
     })
     .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `Failed to authenticate with ${provider}.`, life: 3000 }));

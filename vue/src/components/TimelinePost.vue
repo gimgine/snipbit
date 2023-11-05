@@ -123,6 +123,11 @@ const props = defineProps({
 const openPostDialog = inject<(postId: string) => void>('openPostDialog');
 
 const handleLikeClick = () => {
+  if (!pb.authStore.isValid) {
+    toast.add({ severity: 'warn', summary: 'Not Authenticated', detail: `You must be signed in to perform this action.`, life: 3000 });
+    return;
+  }
+
   if (likeId.value) {
     // user is unliking
     let temp = likeId.value;

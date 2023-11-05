@@ -10,6 +10,10 @@ import { ref } from 'vue';
 import type { MenuItem } from 'primevue/menuitem';
 import CreateSnippet from '@/components/CreateSnippet.vue';
 import CreatePost from '@/components/CreatePost.vue';
+import pb from '@/pocketbase';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const createSnippet = ref({} as InstanceType<typeof CreateSnippet>);
 const createPost = ref({} as InstanceType<typeof CreatePost>);
@@ -17,12 +21,24 @@ const items = ref<Array<MenuItem>>([
   {
     label: 'Post',
     icon: 'pi pi-file-edit',
-    command: () => createPost.value.open()
+    command: () => {
+      if (!pb.authStore.isValid) {
+        toast.add({ severity: 'warn', summary: 'Not Authenticated', detail: `You must be signed in to perform this action.`, life: 3000 });
+        return;
+      }
+      createPost.value.open();
+    }
   },
   {
     label: 'Snippet',
     icon: 'pi pi-code',
-    command: () => createSnippet.value.open()
+    command: () => {
+      if (!pb.authStore.isValid) {
+        toast.add({ severity: 'warn', summary: 'Not Authenticated', detail: `You must be signed in to perform this action.`, life: 3000 });
+        return;
+      }
+      createSnippet.value.open();
+    }
   }
 ]);
 </script>

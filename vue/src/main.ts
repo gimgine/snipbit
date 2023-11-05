@@ -4,6 +4,7 @@ import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import App from './App.vue';
 import router from './router';
+import Tooltip from 'primevue/tooltip';
 
 import './styles.css';
 
@@ -14,4 +15,5 @@ app.use(router);
 app.use(pinia);
 app.use(PrimeVue);
 app.use(ToastService);
+app.directive('tooltip', Tooltip);
 app.mount('#app');

@@ -6,6 +6,7 @@
         <auto-complete
           v-model="language.name"
           :suggestions="filteredLanguages"
+          :disabled="!!snippetId"
           dropdown
           option-label="name"
           @complete="searchLanguages"
@@ -44,7 +45,7 @@
                 <div
                   class="rounded-sm flex-1 h-5 flex justify-between items-center px-2 truncate border border-[var(--surface-border)] bg-[var(--surface-card)]"
                 >
-                  <span class="text-[0.65rem] text-gray-400 truncate">https://tigerhacks.dev/scribble</span>
+                  <span class="text-[0.65rem] text-gray-400 truncate">https://snipbit.dev/snippet</span>
                   <i class="pi pi-search text-xs"></i>
                 </div>
                 <i class="pi pi-bars text-xs"></i>
@@ -59,7 +60,7 @@
       </splitter-panel>
     </splitter>
     <template #footer>
-      <prime-button @click="createSnippet">Create</prime-button>
+      <prime-button @click="createSnippet">{{ snippetId ? 'Edit' : 'Create' }}</prime-button>
     </template>
   </prime-dialog>
 </template>
@@ -78,10 +79,9 @@ import { VueMonacoEditor } from '@guolao/vue-monaco-editor';
 import { onMounted, ref, watch, nextTick } from 'vue';
 import pb from '@/pocketbase';
 import { useToast } from 'primevue/usetoast';
-import { Collections, type LanguagesRecord, type LanguagesResponse, type SnippetsRecord } from '@/util/pocketbase-types';
+import { Collections, type LanguagesRecord, type LanguagesResponse, type SnippetsRecord, type SnippetsResponse } from '@/util/pocketbase-types';
 
 const toast = useToast();
-var tempConsole: Console = {} as Console;
 const open = ref(false);
 
 const dialog = ref({} as any);
@@ -95,6 +95,7 @@ const code = ref();
 const title = ref(`My Snippet`);
 const activeIndex = ref(0);
 const codeHandler = ref();
+const snippetId = ref('');
 
 const searchLanguages = (event: AutoCompleteCompleteEvent) => {
   filteredLanguages.value = languages.value.filter((e) => e.name?.toLowerCase().includes(event.query.toLowerCase()));
@@ -110,30 +111,44 @@ const selectLanguage = () => {
 };
 
 const createSnippet = () => {
-  pb.collection(Collections.Snippets)
-    .create({
-      title: title.value,
-      content: language.value.name === 'HTML/CSS/JS' ? JSON.stringify(code.value) : code.value[Object.keys(code.value)[0]],
-      user: pb.authStore.model?.id,
-      language: (language.value as LanguagesResponse).id,
-      customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
-      runnable: language.value.isRunnable ?? false
-    } as SnippetsRecord)
-    .then(() => (open.value = false))
-    .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem creating the snippet.`, life: 3000 }));
+  if (snippetId.value) {
+    pb.collection(Collections.Snippets)
+      .update(snippetId.value, {
+        content: language.value.name === 'HTML/CSS/JS' ? JSON.stringify(code.value) : code.value[Object.keys(code.value)[0]],
+        title: title.value
+      })
+      .then(() => (open.value = false))
+      .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem editing the snippet.`, life: 3000 }));
+  } else {
+    pb.collection(Collections.Snippets)
+      .create({
+        title: title.value,
+        content: language.value.name === 'HTML/CSS/JS' ? JSON.stringify(code.value) : code.value[Object.keys(code.value)[0]],
+        user: pb.authStore.model?.id,
+        language: (language.value as LanguagesResponse).id,
+        customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
+        runnable: language.value.isRunnable ?? false
+      } as SnippetsRecord)
+      .then(() => {
+        open.value = false;
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Snippet created.', life: 3000 });
+      })
+      .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem creating the snippet.`, life: 3000 }));
+  }
 };
 
 watch(
   language,
   (value) => {
     activeIndex.value = 0;
-    code.value = value.monacoName?.split('/').reduce(
-      (acc, current) => {
-        acc[current] = '';
-        return acc;
-      },
-      {} as { [key: string]: any }
-    );
+    if (!snippetId.value)
+      code.value = value.monacoName?.split('/').reduce(
+        (acc, current) => {
+          acc[current] = '';
+          return acc;
+        },
+        {} as { [key: string]: any }
+      );
     codeHandler.value = setCodeHandler(value);
   },
   { deep: true }
@@ -142,27 +157,16 @@ watch(
 watch(
   code,
   () => {
-    codeHandler.value();
+    if (codeHandler.value) codeHandler.value();
   },
   { deep: true }
 );
 
 const setCodeHandler = (lang: LanguagesRecord) => {
-  console = tempConsole;
   switch (lang.name) {
     case 'HTML/CSS/JS':
       return handleHtmlCssJs;
     case 'JavaScript':
-      console = {
-        ...console,
-        assert: terminal.value.assert,
-        clear: terminal.value.clear,
-        debug: terminal.value.debug,
-        error: terminal.value.error,
-        info: terminal.value.info,
-        log: terminal.value.log,
-        warn: terminal.value.warn
-      };
       return handleJavaScript;
     default:
       return console.log;
@@ -203,18 +207,34 @@ const initializeIframe = () => {
   });
 };
 
-const initialize = () => {
+const initialize = (snippet?: SnippetsResponse) => {
   open.value = true;
-  pb.collection('languages')
-    .getFullList()
-    .then((res) => {
-      languages.value = res;
-      language.value = { ...(res.find((e) => e.name === 'HTML/CSS/JS') ?? {}) };
-    })
-    .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem fetching the languages.`, life: 3000 }));
+  if (snippet) {
+    snippetId.value = snippet.id;
+    title.value = snippet.title;
+    language.value = (snippet.expand as any)?.language ?? {
+      name: snippet.customLanguage,
+      monacoName: snippet.customLanguage
+    };
+    nextTick(() => {
+      if ((snippet.expand as any)?.language?.name === 'HTML/CSS/JS') {
+        code.value = JSON.parse(snippet.content);
+      } else {
+        code.value = {};
+        code.value[(snippet.expand as any)?.language.monacoName] = snippet.content;
+      }
+    });
+  } else {
+    pb.collection('languages')
+      .getFullList()
+      .then((res) => {
+        languages.value = res;
+        language.value = { ...(res.find((e) => e.name === 'HTML/CSS/JS') ?? {}) };
+      })
+      .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem fetching the languages.`, life: 3000 }));
+  }
 
   nextTick(initializeIframe);
-  tempConsole = console;
 };
 
 defineExpose({ open: initialize });

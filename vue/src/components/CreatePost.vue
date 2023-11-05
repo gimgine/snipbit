@@ -2,25 +2,25 @@
   <prime-dialog v-model:visible="open" modal header="Create Post" class="w-96">
     <div v-if="active === null" class="flex flex-wrap gap-4 p-2">
       <prime-button
-        class="w-[calc(50%-1rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
+        class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.CODE"
         ><i class="pi pi-code text-5xl"></i>
         <p class="italic">share some code</p>
       </prime-button>
       <prime-button
-        class="w-[calc(50%-1rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
+        class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.IMAGE"
         ><i class="pi pi-image text-5xl"></i>
         <p class="italic">share an image</p>
       </prime-button>
       <prime-button
-        class="w-[calc(50%-1rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
+        class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.TEXT"
         ><span class="text-5xl">.txt</span>
         <p class="italic">share some words</p>
       </prime-button>
       <prime-button
-        class="w-[calc(50%-1rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
+        class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.LINK"
         ><i class="pi pi-link text-5xl"></i>
         <p class="italic">share a link</p>
@@ -68,7 +68,7 @@ import PrimeDialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import PrimeTextarea from 'primevue/textarea';
 import { useToast } from 'primevue/usetoast';
-import { ref, type Ref } from 'vue';
+import { inject, ref, type Ref } from 'vue';
 
 enum State {
   CODE,
@@ -76,6 +76,8 @@ enum State {
   TEXT,
   LINK
 }
+
+const reloadTimeline = inject('reloadTimeline') as () => void;
 
 const toast = useToast();
 const open = ref(false);
@@ -120,6 +122,7 @@ const createPost = () => {
     .then(() => {
       toast.add({ severity: 'success', summary: 'Success', detail: `Post successfully created.`, life: 3000 });
       open.value = false;
+      reloadTimeline();
     })
     .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem creating the post.`, life: 3000 }));
 };
@@ -135,7 +138,6 @@ defineExpose({
     snippets.value = (
       await pb.collection(Collections.Snippets).getList(undefined, undefined, { filter: `user = "${pb.authStore.model?.id}"`, expand: 'language' })
     ).items;
-    console.log(snippets.value);
   }
 });
 </script>

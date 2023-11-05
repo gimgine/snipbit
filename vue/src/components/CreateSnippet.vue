@@ -11,7 +11,7 @@
           option-label="name"
           @complete="searchLanguages"
           @blur="selectLanguage"
-          @item-select="(e) => (language = e.value)"
+          @item-select="(e: AutoCompleteItemSelectEvent) => (language = e.value)"
         />
       </span>
     </template>
@@ -72,7 +72,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Splitter from 'primevue/splitter';
 import SplitterPanel from 'primevue/splitterpanel';
-import AutoComplete, { type AutoCompleteCompleteEvent } from 'primevue/autocomplete';
+import AutoComplete, { type AutoCompleteCompleteEvent, type AutoCompleteItemSelectEvent } from 'primevue/autocomplete';
 import PrimeButton from 'primevue/button';
 import Terminal from './Terminal.vue';
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor';

@@ -12,7 +12,12 @@
           <prime-button class="flex justify-center gap-2" @click="authWithOAuth('google')"><i class="pi pi-google"></i>Google</prime-button>
         </div>
         <div v-else class="flex gap-8 justify-center flex-col">
-          <file-upload accept="image/*" v-model="profilePicture" :file-limit="1" @select="(e) => (profilePicture = e.files[0])">
+          <file-upload
+            accept="image/*"
+            v-model="profilePicture"
+            :file-limit="1"
+            @select="(e: FileUploadSelectEvent) => (profilePicture = e.files[0])"
+          >
             <template #header="{ chooseCallback }">
               {{ (chooseFile = chooseCallback) }}
             </template>
@@ -51,7 +56,7 @@
 <script setup lang="ts">
 import Card from 'primevue/card';
 import PrimeButton from 'primevue/button';
-import FileUpload from 'primevue/fileupload';
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import InputText from 'primevue/inputtext';
 import PrimeTextarea from 'primevue/textarea';
 import pb from '@/pocketbase';

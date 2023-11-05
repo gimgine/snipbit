@@ -30,7 +30,7 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./tigerhacks/pb_public/
+          server-dir: ./snipbit/pb_public/
           local-dir: ./vue/dist/
           dangerous-clean-slate: true
 
@@ -40,6 +40,6 @@ jobs:
       #     server: ${{ secrets.FTP_HOST }}
       #     username: ${{ secrets.FTP_USERNAME }}
       #     password: ${{ secrets.FTP_PASSWORD }}
-      #     server-dir: ./tigerhacks/pb_hooks/
+      #     server-dir: ./snipbit/pb_hooks/
       #     local-dir: ./pocketbase/pb_hooks/
       #     dangerous-clean-slate: true

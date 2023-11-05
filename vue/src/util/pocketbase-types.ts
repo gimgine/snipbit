@@ -94,7 +94,7 @@ export type SnippetsRecord = {
 };
 
 export type UsersRecord = {
-  avatarUrl?: string;
+  avatar?: string;
   bio?: string;
   github?: string;
 };

@@ -3,11 +3,19 @@
     <template #header>
       <span class="flex items-end gap-4">
         <input-text v-model="title" size="large"></input-text>
-        <auto-complete v-model="language.name" :suggestions="filteredLanguages" dropdown option-label="name" @complete="searchLanguages" @blur="selectLanguage" @item-select="e => language = e.value" />
+        <auto-complete
+          v-model="language.name"
+          :suggestions="filteredLanguages"
+          dropdown
+          option-label="name"
+          @complete="searchLanguages"
+          @blur="selectLanguage"
+          @item-select="(e) => (language = e.value)"
+        />
       </span>
     </template>
     <splitter class="h-full">
-      <splitter-panel :size="50" >
+      <splitter-panel :size="50">
         <tab-view class="h-full flex flex-col" v-model:active-index="activeIndex">
           <tab-panel v-for="lang in Object.keys(code ?? {})" :header="lang">
             <vue-monaco-editor
@@ -90,11 +98,16 @@ const codeHandler = ref();
 
 const searchLanguages = (event: AutoCompleteCompleteEvent) => {
   filteredLanguages.value = languages.value.filter((e) => e.name?.toLowerCase().includes(event.query.toLowerCase()));
-}
+};
 
 const selectLanguage = () => {
-  language.value = { ...languages.value.find((e) => e.name?.toLowerCase() === language.value.name?.toLowerCase()) ?? { name: language.value.name, monacoName: language.value.name } };
-}
+  language.value = {
+    ...(languages.value.find((e) => e.name?.toLowerCase() === language.value.name?.toLowerCase()) ?? {
+      name: language.value.name,
+      monacoName: language.value.name
+    })
+  };
+};
 
 const createSnippet = () => {
   pb.collection(Collections.Snippets).create({
@@ -105,27 +118,30 @@ const createSnippet = () => {
     customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
     runnable: language.value.isRunnable ?? false
   } as SnippetsRecord);
-}
+};
 
 watch(
   language,
   (value) => {
     activeIndex.value = 0;
-    code.value = value.monacoName?.split('/').reduce((acc, current) => {
-      acc[current] = '';
-      return acc;
-    }, {} as { [key: string]: any });
+    code.value = value.monacoName?.split('/').reduce(
+      (acc, current) => {
+        acc[current] = '';
+        return acc;
+      },
+      {} as { [key: string]: any }
+    );
     codeHandler.value = setCodeHandler(value);
   },
-  {deep: true}
+  { deep: true }
 );
 
 watch(
   code,
   () => {
-    codeHandler.value()
+    codeHandler.value();
   },
-  {deep: true}
+  { deep: true }
 );
 
 const setCodeHandler = (lang: LanguagesRecord) => {
@@ -142,13 +158,13 @@ const setCodeHandler = (lang: LanguagesRecord) => {
         error: terminal.value.error,
         info: terminal.value.info,
         log: terminal.value.log,
-        warn: terminal.value.warn,
-      }
+        warn: terminal.value.warn
+      };
       return handleJavaScript;
     default:
       return console.log;
   }
-}
+};
 
 const handleJavaScript = () => {
   terminal.value.clear();
@@ -157,7 +173,7 @@ const handleJavaScript = () => {
   } catch (e: any) {
     terminal.value.error(e.message);
   }
-}
+};
 
 const handleHtmlCssJs = () => {
   terminal.value.clear();
@@ -176,24 +192,25 @@ const initializeIframe = () => {
     error: terminal.value.error,
     info: terminal.value.info,
     log: terminal.value.log,
-    warn: terminal.value.warn,
+    warn: terminal.value.warn
   };
   iframe.value.contentWindow?.addEventListener('error', (e) => {
     e.preventDefault();
     terminal.value.error(e.error);
   });
-}
+};
 
-defineExpose({ open: () => open.value = true })
+defineExpose({ open: () => (open.value = true) });
 
 onMounted(() => {
   dialog.value.maximize();
-  pb.collection('languages').getFullList()
-  .then(res => {
-    languages.value = res
-    language.value = { ...res.find((e) => e.name === 'HTML/CSS/JS') ?? {} };
-  })
-  .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem fetching the languages.`, life: 3000 }));
+  pb.collection('languages')
+    .getFullList()
+    .then((res) => {
+      languages.value = res;
+      language.value = { ...(res.find((e) => e.name === 'HTML/CSS/JS') ?? {}) };
+    })
+    .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem fetching the languages.`, life: 3000 }));
 
   nextTick(initializeIframe);
   tempConsole = console;

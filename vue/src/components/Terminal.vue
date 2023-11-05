@@ -49,5 +49,5 @@ const log = (...data: any[]) => {
   lines.value.push({ body: data.join(' ') });
 };
 
-defineExpose({ assert, clear, warn, error, info, debug, log })
+defineExpose({ assert, clear, warn, error, info, debug, log });
 </script>

@@ -11,7 +11,7 @@
           <div class="flex-1 flex flex-col gap-4 justify-center items-center">
             <div class="flex gap-4">
               <div class="flex flex-col items-center">
-                <strong>{{ (user.expand as any)['posts(user)']?.length ?? 0 }}</strong>
+                <strong>{{ (user.expand ? (user.expand as any)['posts(user)'] : []).length ?? 0 }}</strong>
                 <small>Posts</small>
               </div>
               <div class="flex flex-col items-center">
@@ -19,7 +19,7 @@
                 <small>Followers</small>
               </div>
               <div class="flex flex-col items-center">
-                <strong>{{ (user.expand as any)['following(user)']?.length ?? 0 }}</strong>
+                <strong>{{ (user.expand ? (user.expand as any)['following(user)'] : [])?.length ?? 0 }}</strong>
                 <small>Following</small>
               </div>
             </div>
@@ -31,7 +31,7 @@
         <strong class="text-xl">{{ user.username }}</strong>
         <span>{{ user.bio }}</span>
         <data-view
-          :value="(user.expand as any)['posts(user)']"
+          :value="user.expand ? (user.expand as any)['posts(user)'] : []"
           data-key="id"
           class="mt-2"
           :pt="{
@@ -123,8 +123,9 @@ const initialize = async () => {
     .collection(Collections.Users)
     .getFirstListItem(`username = "${props.username}"`, { expand: 'posts(user).snippet.language,following(user),following(isFollowing)' });
   user.value = res;
-  followingId.value = (user.value.expand as any)['following(isFollowing)']?.find((e: any) => e.user === pb.authStore.model?.id)?.id ?? '';
-  followersCount.value = (user.value.expand as any)['following(isFollowing)']?.length ?? 0;
+  followingId.value =
+    (user.value.expand ? (user.value.expand as any)['following(isFollowing)'] : [])?.find((e: any) => e.user === pb.authStore.model?.id)?.id ?? '';
+  followersCount.value = (user.value.expand ? (user.value.expand as any)['following(isFollowing)'] : [])?.length ?? 0;
   avatarCache.getAvatarUrlForId(user.value.id);
 };
 

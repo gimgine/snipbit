@@ -5,7 +5,7 @@
       <div class="flex flex-col w-2/12">
         <left-nav />
       </div>
-      <div class="grid w-8/12 grid-cols-3 gap-4">
+      <div class="w-8/12 grid grid-cols-3 gap-4 h-min">
         <card v-for="snippet in snippets" class="h-min">
           <template #title>{{ snippet.title }}</template>
           <template #subtitle><prime-tag :value="(snippet.expand as any)?.language.name ?? snippet.customLanguage" /></template>

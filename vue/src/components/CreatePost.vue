@@ -138,7 +138,6 @@ defineExpose({
     snippets.value = (
       await pb.collection(Collections.Snippets).getList(undefined, undefined, { filter: `user = "${pb.authStore.model?.id}"`, expand: 'language' })
     ).items;
-    console.log(snippets.value);
   }
 });
 </script>

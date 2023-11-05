@@ -107,7 +107,6 @@ const reloadTimeline = async () => {
   }
 
   posts.value = activeTab.value ? res.items.filter((e) => following.includes(e.user)) : res.items;
-  console.log(posts.value);
 };
 defineExpose({ reloadTimeline });
 

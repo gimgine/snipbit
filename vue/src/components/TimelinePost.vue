@@ -65,14 +65,16 @@
       <div class="flex justify-between items-center">
         <div class="flex gap-3">
           <span>
-            <i :class="['pi pi-heart text-xl', likeId ? 'text-red-500' : '']" @click="handleLikeClick" />
+            <i
+              :class="['pi pi-heart text-xl cursor-pointer transition-opacity hover:opacity-50', likeId ? 'text-red-500' : '']"
+              @click="handleLikeClick"
+            />
             {{ likeCount }}
           </span>
           <span>
             <i :class="['pi pi-comment text-xl', commentId ? 'text-green-500' : '']" @click="handleCommentClick" />
             {{ commentCount }}
           </span>
-          <i :class="['pi pi-bookmark text-xl', saveId ? 'text-blue-500' : '']" @click="handleSaveClick" />
         </div>
         <prime-button icon="pi pi-chevron-right" text rounded label="Open" @click="handleOpenClick" />
       </div>
@@ -123,6 +125,11 @@ const props = defineProps({
 const openPostDialog = inject<(postId: string) => void>('openPostDialog');
 
 const handleLikeClick = () => {
+  if (!pb.authStore.isValid) {
+    toast.add({ severity: 'warn', summary: 'Not Authenticated', detail: `You must be signed in to perform this action.`, life: 3000 });
+    return;
+  }
+
   if (likeId.value) {
     // user is unliking
     let temp = likeId.value;

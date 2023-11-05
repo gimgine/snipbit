@@ -129,7 +129,10 @@ const createSnippet = () => {
         customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
         runnable: language.value.isRunnable ?? false
       } as SnippetsRecord)
-      .then(() => (open.value = false))
+      .then(() => {
+        open.value = false;
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Snippet created.', life: 3000 });
+      })
       .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem creating the snippet.`, life: 3000 }));
   }
 };

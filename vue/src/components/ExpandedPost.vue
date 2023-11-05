@@ -1,6 +1,23 @@
 <template>
   <div class="w-full">
+    <tab-view class="h-full flex flex-col" v-if="postContent.type === PostsTypeOptions.htmlcssjs">
+      <tab-panel v-for="lang in ['html', 'css', 'javascript']" :header="lang">
+        <vue-monaco-editor
+          :language="lang"
+          class="min-h-[200px] rounded-t overflow-hidden"
+          v-model:value="JSON.parse(postContent.expand?.snippet.content ?? '')[lang]"
+          :options="{
+            automaticLayout: true,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            theme: 'vs-dark'
+          }"
+        />
+      </tab-panel>
+    </tab-view>
+
     <vue-monaco-editor
+      v-else
       :language="postContent.expand?.snippet.expand?.language.monacoName"
       theme="vs-dark"
       :value="postContent.expand?.snippet.content"
@@ -70,12 +87,15 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext';
 import PrimeButton from 'primevue/button';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 import PrimeTag from 'primevue/tag';
 import PrimeAvatar from 'primevue/avatar';
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor';
 import pb from '@/pocketbase';
 import {
   Collections,
+  PostsTypeOptions,
   type CommentsResponse,
   type LanguagesRecord,
   type PostsResponse,
@@ -104,6 +124,11 @@ const newComment = ref({
 });
 
 const handleCommentClick = () => {
+  if (!pb.authStore.isValid) {
+    toast.add({ severity: 'warn', summary: 'Not Authenticated', detail: `You must be signed in to perform this action.`, life: 3000 });
+    return;
+  }
+
   if (newComment.value.text.trim() === '') {
     newComment.value.error = 'Comment text is required';
     return;
@@ -126,7 +151,6 @@ const updateComments = () => {
     .getFullList<CommentsResponse<{ user: UsersResponse }>>({ filter: `post = "${props.postId}"`, expand: 'user' })
     .then((res) => {
       comments.value = res;
-      console.log(comments.value);
     });
 };
 

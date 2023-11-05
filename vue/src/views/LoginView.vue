@@ -73,7 +73,7 @@ const chooseFile = ref();
 
 const authWithOAuth = (provider: string) => {
   pb.collection('users')
-    .authWithOAuth2({ provider: provider, scopes: ['error'] })
+    .authWithOAuth2({ provider: provider })
     .then((res) => {
       if (res.meta?.isNew) {
         isNewUser.value = true;

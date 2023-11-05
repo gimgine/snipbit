@@ -41,9 +41,15 @@
     <template #footer>
       <div class="flex justify-between items-center">
         <div class="flex gap-3">
-          <i :class="['pi pi-heart text-xl', isPostLiked ? 'text-red-500' : '']" @click="handleLikeClick" />
-          <i :class="['pi pi-comment text-xl', isPostCommented ? 'text-green-500' : '']" @click="handleCommentClick" />
-          <i :class="['pi pi-share-alt text-xl -rotate-90', isPostForked ? 'text-blue-500' : '']" @click="handleForkClick" />
+          <span>
+            <i :class="['pi pi-heart text-xl', likeId ? 'text-red-500' : '']" @click="handleLikeClick" />
+            {{ likeCount }}
+          </span>
+          <span>
+            <i :class="['pi pi-comment text-xl', commentId ? 'text-green-500' : '']" @click="handleCommentClick" />
+            {{ commentCount }}
+          </span>
+          <i :class="['pi pi-bookmark text-xl', saveId ? 'text-blue-500' : '']" @click="handleSaveClick" />
         </div>
         <prime-button icon="pi pi-chevron-right" text rounded label="Open" @click="handleOpenClick" />
       </div>
@@ -52,14 +58,14 @@
 </template>
 
 <script setup lang="ts">
-import { Collections, PostsTypeOptions } from '@/util/pocketbase-types';
+import { Collections, PostsTypeOptions, type LikesRecord, type LikesResponse } from '@/util/pocketbase-types';
 import PrimeCard from 'primevue/card';
 import PrimeButton from 'primevue/button';
 import PrimeTag from 'primevue/tag';
 import PrimeAvatar from 'primevue/avatar';
 import { useToast } from 'primevue/usetoast';
 import VueMonacoEditor from '@guolao/vue-monaco-editor';
-import { ref, onMounted, type PropType, inject } from 'vue';
+import { ref, onMounted, type PropType, inject, computed } from 'vue';
 import pb from '@/pocketbase';
 import { useAvatarCache } from '@/store';
 
@@ -67,11 +73,12 @@ const avatarCache = useAvatarCache();
 
 const toast = useToast();
 
-const isPostLiked = ref(false);
-const isPostCommented = ref(false);
-const isPostForked = ref(false);
-
 const likeId = ref('');
+const commentId = ref('');
+const saveId = ref('');
+
+const likeCount = ref(0);
+const commentCount = ref(0);
 
 const props = defineProps({
   userId: { type: String, required: true },
@@ -84,30 +91,35 @@ const props = defineProps({
   username: { type: String, required: true },
   created: { type: String, required: true },
   caption: { type: String, required: true },
-  postType: { type: String as PropType<PostsTypeOptions>, required: true }
+  postType: { type: String as PropType<PostsTypeOptions>, required: true },
+  comments: { type: Array },
+  likes: { type: Array },
+  saves: { type: Array }
 });
 
 const openPostDialog = inject<(postId: string) => void>('openPostDialog');
 
 const handleLikeClick = () => {
-  if (isPostLiked.value) {
+  if (likeId.value) {
     // user is unliking
-    isPostLiked.value = false; // putting it out here to make it more responsive
+    let temp = likeId.value;
+    likeId.value = ''; // putting it out here to make it more responsive
     if (pb.authStore.model) {
       pb.collection(Collections.Likes)
-        .delete(likeId.value)
+        .delete(temp)
         .then(() => {
           likeId.value = '';
+          likeCount.value -= 1;
         })
         .catch(() => {
-          isPostLiked.value = true;
-          toast.add({ severity: 'error', detail: 'Something went wrong on the server. Please try again.' });
+          likeId.value = temp;
+          toast.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong on the server. Please try again.', life: 3000 });
         });
     }
   } else {
     // user is liking
     if (pb.authStore.model) {
-      isPostLiked.value = true; // putting it out here to make it more responsive
+      likeId.value = 'liked'; // putting it out here to make it more responsive
       pb.collection(Collections.Likes)
         .create({
           user: pb.authStore.model.id,
@@ -115,10 +127,11 @@ const handleLikeClick = () => {
         })
         .then((res) => {
           likeId.value = res.id;
+          likeCount.value += 1;
         })
         .catch(() => {
-          isPostLiked.value = false;
-          toast.add({ severity: 'error', detail: 'Something went wrong on the server. Please try again.', life: 2000 });
+          likeId.value = '';
+          toast.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong on the server. Please try again.', life: 2000 });
         });
     }
   }
@@ -126,7 +139,7 @@ const handleLikeClick = () => {
 
 const handleCommentClick = () => {};
 
-const handleForkClick = () => {};
+const handleSaveClick = () => {};
 
 const handleOpenClick = () => {
   if (openPostDialog) {
@@ -135,43 +148,17 @@ const handleOpenClick = () => {
 };
 
 const checkIfLiked = () => {
-  if (pb.authStore.model) {
-    pb.collection(Collections.Likes)
-      .getFirstListItem(`post = "${props.postId}" && user = "${pb.authStore.model.id}"`)
-      .then((res) => {
-        isPostLiked.value = true;
-        likeId.value = res.id;
-      })
-      .catch(() => {
-        isPostLiked.value = false;
-      });
-  }
+  likeCount.value = props.likes?.length ?? 0;
+  likeId.value = (props.likes?.find((e: any) => e.user === pb.authStore.model?.id) as LikesResponse)?.id ?? '';
 };
 
 const checkIfCommented = () => {
-  if (pb.authStore.model) {
-    pb.collection(Collections.Comments)
-      .getFirstListItem(`post = "${props.postId}" && user = "${pb.authStore.model.id}"`)
-      .then(() => {
-        isPostCommented.value = true;
-      })
-      .catch(() => {
-        isPostCommented.value = false;
-      });
-  }
+  commentCount.value = props.comments?.length ?? 0;
+  commentId.value = (props.comments?.find((e: any) => e.user === pb.authStore.model?.id) as LikesResponse)?.id ?? '';
 };
 
-const checkIfForked = () => {
-  if (pb.authStore.model) {
-    pb.collection(Collections.Snippets)
-      .getFirstListItem(`user = "${pb.authStore.model.id}" && forkedFrom = "${props.snippetId}"`)
-      .then(() => {
-        isPostForked.value = true;
-      })
-      .catch(() => {
-        isPostForked.value = false;
-      });
-  }
+const checkIfSaved = () => {
+  saveId.value = (props.saves?.find((e: any) => e.user === pb.authStore.model?.id) as LikesResponse)?.id ?? '';
 };
 
 const formatDate = (date: Date) => {
@@ -204,6 +191,6 @@ const formatDate = (date: Date) => {
 onMounted(() => {
   checkIfLiked();
   checkIfCommented();
-  checkIfForked();
+  checkIfSaved();
 });
 </script>

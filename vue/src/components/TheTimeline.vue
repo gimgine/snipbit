@@ -14,43 +14,59 @@
             :created="slotProps.data.created"
             :caption="slotProps.data.caption"
             :post-type="slotProps.data.type"
-            :avatar-url="slotProps.data.avatarUrl"
+            :language-name="slotProps.data.expand.snippet.expand.language.name"
           />
         </template>
       </data-view>
     </tab-panel>
     <tab-panel header="Following"> </tab-panel>
   </tab-view>
+  <prime-dialog v-model:visible="isPostDialogOpen" modal dismissable-mask>
+    <expanded-post ref="expandedPost" :post-id="openPostId" />
+  </prime-dialog>
 </template>
 
 <script setup lang="ts">
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import DataView from 'primevue/dataview';
+import PrimeDialog from 'primevue/dialog';
 import TimelinePost from '@/components/TimelinePost.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import pb from '@/pocketbase';
 import { Collections, type LanguagesRecord, type PostsResponse, type SnippetsResponse, type UsersResponse } from '@/util/pocketbase-types';
 import { useAvatarCache } from '@/store';
+import ExpandedPost from './ExpandedPost.vue';
 
 type ExpandedUserSnippet = { user: UsersResponse; snippet: SnippetsResponse<{ language: LanguagesRecord }> };
 
 const avatarCache = useAvatarCache();
 
 const posts = ref([] as Array<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>);
+const isPostDialogOpen = ref(false);
+const openPostId = ref('');
 
 const getPosts = async () => {
   const res = await pb
     .collection(Collections.Posts)
     .getList<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>(undefined, undefined, { expand: 'user,snippet,snippet.language' });
 
-  res.items.forEach((post) => {});
-
   for (let i = 0; i < res.items.length; i++) {
     avatarCache.getAvatarUrlForId(res.items[i].user);
   }
 
   posts.value = res.items;
+};
+
+const openPostDialog = (postId: string) => {
+  isPostDialogOpen.value = true;
+  openPostId.value = postId;
+};
+provide('openPostDialog', openPostDialog);
+
+const closePostDialog = () => {
+  isPostDialogOpen.value = false;
+  openPostId.value = '';
 };
 
 onMounted(async () => {

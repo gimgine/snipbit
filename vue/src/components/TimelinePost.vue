@@ -19,7 +19,10 @@
     </template>
     <template #title>
       <div class="flex justify-between">
-        <h1>{{ title }}</h1>
+        <div class="flex items-center gap-4">
+          <h1>{{ title }}</h1>
+          <prime-tag :value="languageName" />
+        </div>
         <div class="flex flex-col items-end gap-1">
           <div class="flex gap-2 items-center">
             <h1 class="text-sm">{{ username }}</h1>
@@ -36,10 +39,13 @@
       {{ caption }}
     </template>
     <template #footer>
-      <div class="flex gap-3">
-        <i :class="['pi pi-heart text-xl', isPostLiked ? 'text-red-500' : '']" @click="handleLikeClick" />
-        <i :class="['pi pi-comment text-xl', isPostCommented ? 'text-green-500' : '']" @click="handleCommentClick" />
-        <i :class="['pi pi-share-alt text-xl -rotate-90', isPostForked ? 'text-blue-500' : '']" @click="handleForkClick" />
+      <div class="flex justify-between items-center">
+        <div class="flex gap-3">
+          <i :class="['pi pi-heart text-xl', isPostLiked ? 'text-red-500' : '']" @click="handleLikeClick" />
+          <i :class="['pi pi-comment text-xl', isPostCommented ? 'text-green-500' : '']" @click="handleCommentClick" />
+          <i :class="['pi pi-share-alt text-xl -rotate-90', isPostForked ? 'text-blue-500' : '']" @click="handleForkClick" />
+        </div>
+        <prime-button icon="pi pi-chevron-right" text rounded label="Open" @click="handleOpenClick" />
       </div>
     </template>
   </prime-card>
@@ -48,10 +54,12 @@
 <script setup lang="ts">
 import { Collections, PostsTypeOptions } from '@/util/pocketbase-types';
 import PrimeCard from 'primevue/card';
+import PrimeButton from 'primevue/button';
+import PrimeTag from 'primevue/tag';
 import PrimeAvatar from 'primevue/avatar';
 import { useToast } from 'primevue/usetoast';
 import VueMonacoEditor from '@guolao/vue-monaco-editor';
-import { ref, onMounted, type PropType } from 'vue';
+import { ref, onMounted, type PropType, inject } from 'vue';
 import pb from '@/pocketbase';
 import { useAvatarCache } from '@/store';
 
@@ -59,7 +67,6 @@ const avatarCache = useAvatarCache();
 
 const toast = useToast();
 
-const avatarUrl = ref('');
 const isPostLiked = ref(false);
 const isPostCommented = ref(false);
 const isPostForked = ref(false);
@@ -70,15 +77,17 @@ const props = defineProps({
   userId: { type: String, required: true },
   postId: { type: String, required: true },
   snippetId: { type: String },
-  monacoName: { type: String, required: true },
+  monacoName: { type: String },
+  languageName: { type: String },
   snippetContent: { type: String },
   title: { type: String, required: true },
   username: { type: String, required: true },
   created: { type: String, required: true },
   caption: { type: String, required: true },
-  postType: { type: String as PropType<PostsTypeOptions>, required: true },
-  avatarUrl: { type: String }
+  postType: { type: String as PropType<PostsTypeOptions>, required: true }
 });
+
+const openPostDialog = inject<(postId: string) => void>('openPostDialog');
 
 const handleLikeClick = () => {
   if (isPostLiked.value) {
@@ -118,6 +127,12 @@ const handleLikeClick = () => {
 const handleCommentClick = () => {};
 
 const handleForkClick = () => {};
+
+const handleOpenClick = () => {
+  if (openPostDialog) {
+    openPostDialog(props.postId);
+  }
+};
 
 const checkIfLiked = () => {
   if (pb.authStore.model) {

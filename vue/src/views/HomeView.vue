@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[var(--surface-ground)] px-32 h-full">
+  <div class="bg-[var(--surface-ground)] lg:px-32 py-2 h-full">
     <top-nav />
     <div class="flex w-full h-full justify-center gap-1">
       <div class="flex flex-col w-2/12">
@@ -29,8 +29,8 @@ import type { MenuItem } from 'primevue/menuitem';
 import CreateSnippet from '@/components/CreateSnippet.vue';
 import CreatePost from '@/components/CreatePost.vue';
 
-const createSnippet = ref({} as InstanceType<typeof CreateSnippet>)
-const createPost = ref({} as InstanceType<typeof CreatePost>)
+const createSnippet = ref({} as InstanceType<typeof CreateSnippet>);
+const createPost = ref({} as InstanceType<typeof CreatePost>);
 const items = ref<Array<MenuItem>>([
   {
     label: 'Post',

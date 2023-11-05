@@ -8,5 +8,5 @@ import { ref } from 'vue';
 
 const open = ref(false);
 
-defineExpose({ open: (open.value = true) });
+defineExpose({ open: () => (open.value = true) });
 </script>

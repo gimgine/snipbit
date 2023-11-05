@@ -1,28 +1,46 @@
 <template>
   <div class="flex flex-col">
-    <speed-dial :model="items" direction="up" :style="{ right: '1rem', bottom: '1rem' }" :tooltip-options="{ position: 'right', event: 'hover' }" />
+    <split-button class="h-12" v-if="pb.authStore.isValid" :model="items" size="small" text>
+      <template #buttoncontent>
+        <div class="flex items-center gap-3">
+          <prime-avatar class="mr-3" :image="avatarUrl" v-show="avatarUrl" shape="circle" />
+          <prime-avatar class="mr-3" icon="pi pi-user" v-show="!avatarUrl" shape="circle" />
+          <h1 class="hidden sm:block">{{ username }}</h1>
+        </div>
+      </template>
+    </split-button>
+    <prime-button v-else class="mx-7" label="Sign In" icon="pi pi-sign-in" @click="$router.push({ name: 'login' })" text />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { MenuItem } from 'primevue/menuitem';
-import SpeedDial from 'primevue/speeddial';
-import { ref } from 'vue';
+import SplitButton from 'primevue/splitbutton';
+import PrimeButton from 'primevue/button';
+import PrimeAvatar from 'primevue/avatar';
+import { onMounted, ref } from 'vue';
+import { useAvatarCache } from '@/store';
+import pb from '@/pocketbase';
 
-const items = ref<Array<MenuItem>>([
+const avatarUrl = ref('');
+const username = ref('');
+
+const avatarCache = useAvatarCache();
+
+const items = [
   {
-    label: 'Post',
-    icon: 'pi pi-file-edit'
-  },
-  {
-    label: 'Snippet',
-    icon: 'pi pi-code'
+    label: 'Sign Out',
+    icon: 'pi pi-sign-out',
+    command: () => {
+      pb.authStore.clear();
+      window.location.reload();
+    }
   }
-]);
-</script>
+];
 
-<style>
-.p-speeddial {
-  position: fixed !important;
-}
-</style>
+onMounted(() => {
+  username.value = pb.authStore.model?.username;
+  avatarCache.getAvatarUrlForId(pb.authStore.model?.id).then(() => {
+    avatarUrl.value = avatarCache.cache[pb.authStore.model?.id];
+  });
+});
+</script>

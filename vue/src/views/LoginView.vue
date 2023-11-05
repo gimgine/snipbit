@@ -1,6 +1,6 @@
 <template>
   <div class="w-full h-full flex flex-col justify-center gap-16 items-center bg-[var(--surface-ground)]">
-    <h1 class="text-5xl font-bold">&lt;devScribble /></h1>
+    <h1 class="text-5xl font-bold">snipbit</h1>
     <card class="w-80">
       <template #title
         ><h1 class="text-center">{{ isNewUser ? 'Create Account' : 'Login Using' }}</h1></template

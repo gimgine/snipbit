@@ -29,8 +29,8 @@ import type { MenuItem } from 'primevue/menuitem';
 import CreateSnippet from '@/components/CreateSnippet.vue';
 import CreatePost from '@/components/CreatePost.vue';
 
-const createSnippet = ref({} as InstanceType<typeof CreateSnippet>)
-const createPost = ref({} as InstanceType<typeof CreatePost>)
+const createSnippet = ref({} as InstanceType<typeof CreateSnippet>);
+const createPost = ref({} as InstanceType<typeof CreatePost>);
 const items = ref<Array<MenuItem>>([
   {
     label: 'Post',

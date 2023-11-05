@@ -1,5 +1,5 @@
 <template>
-  <prime-dialog ref="dialog" maximizable v-model:visible="open">
+  <prime-dialog ref="dialog" modal maximizable v-model:visible="open">
     <template #header>
       <span class="flex items-end gap-4">
         <input-text v-model="title" size="large"></input-text>
@@ -110,14 +110,17 @@ const selectLanguage = () => {
 };
 
 const createSnippet = () => {
-  pb.collection(Collections.Snippets).create({
-    title: title.value,
-    content: language.value.name === 'HTML/CSS/JS' ? JSON.stringify(code.value) : code.value[Object.keys(code.value)[0]],
-    user: pb.authStore.model?.id,
-    language: (language.value as LanguagesResponse).id,
-    customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
-    runnable: language.value.isRunnable ?? false
-  } as SnippetsRecord);
+  pb.collection(Collections.Snippets)
+    .create({
+      title: title.value,
+      content: language.value.name === 'HTML/CSS/JS' ? JSON.stringify(code.value) : code.value[Object.keys(code.value)[0]],
+      user: pb.authStore.model?.id,
+      language: (language.value as LanguagesResponse).id,
+      customLanguage: (language.value as LanguagesResponse).id ? undefined : language.value.name,
+      runnable: language.value.isRunnable ?? false
+    } as SnippetsRecord)
+    .then(() => (open.value = false))
+    .catch(() => toast.add({ severity: 'error', summary: 'Error', detail: `There was a problem creating the snippet.`, life: 3000 }));
 };
 
 watch(
@@ -200,10 +203,8 @@ const initializeIframe = () => {
   });
 };
 
-defineExpose({ open: () => (open.value = true) });
-
-onMounted(() => {
-  dialog.value.maximize();
+const initialize = () => {
+  open.value = true;
   pb.collection('languages')
     .getFullList()
     .then((res) => {
@@ -214,6 +215,12 @@ onMounted(() => {
 
   nextTick(initializeIframe);
   tempConsole = console;
+};
+
+defineExpose({ open: initialize });
+
+onMounted(() => {
+  dialog.value.maximize();
 });
 </script>
 
@@ -221,13 +228,16 @@ onMounted(() => {
 .p-dialog-header-maximize {
   display: none;
 }
+
 .p-tabview-panels {
   padding: 0;
   flex: 1;
 }
+
 .p-tabview-panel {
   height: 100%;
 }
+
 .monaco-editor {
   position: absolute !important;
 }

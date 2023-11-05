@@ -117,7 +117,7 @@ const handleCommentClick = () => {
       newComment.value.text = '';
     })
     .catch(() => {
-      toast.add({ severity: 'error', summary: 'Success', detail: `Something went wrong on the server. Please try again.`, life: 3000 });
+      toast.add({ severity: 'error', summary: 'Error', detail: `Something went wrong on the server. Please try again.`, life: 3000 });
     });
 };
 

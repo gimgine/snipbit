@@ -1,5 +1,5 @@
 <template>
-  <prime-card class="my-2 bg-[var(--surface-c)]">
+  <prime-card class="bg-[var(--surface-c)]">
     <template #header>
       <vue-monaco-editor
         v-if="postType === PostsTypeOptions.code"
@@ -16,6 +16,29 @@
           lineDecorationsWidth: 0
         }"
       />
+      <div v-else-if="postType === PostsTypeOptions.htmlcssjs" ref="iframeContainer" class="w-full h-80 flex flex-col">
+        <div class="w-full rounded-t h-8 flex gap-4 items-center px-4 bg-[var(--surface-card)]">
+          <div class="flex gap-2">
+            <div class="w-[0.65rem] h-[0.65rem] rounded-[50%] bg-red-500"></div>
+            <div class="w-[0.65rem] h-[0.65rem] rounded-[50%] bg-yellow-500"></div>
+            <div class="w-[0.65rem] h-[0.65rem] rounded-[50%] bg-green-500"></div>
+          </div>
+          <div
+            class="rounded-sm flex-1 h-5 flex justify-between items-center px-2 truncate border border-[var(--surface-border)] bg-[var(--surface-ground)]"
+          >
+            <span class="text-[0.65rem] text-gray-400 truncate">https://snipbit.dev/snipbit</span>
+            <i class="pi pi-search text-xs"></i>
+          </div>
+          <i class="pi pi-bars text-xs"></i>
+        </div>
+        <iframe
+          ref="iframe"
+          class="w-full flex-1 bg-white"
+          :srcdoc="`<html><head><style>${JSON.parse(snippetContent ?? '').css}</style></head><body>${
+            JSON.parse(snippetContent ?? '').html
+          }</body><script>${JSON.parse(snippetContent ?? '').javascript}</script></html>`"
+        ></iframe>
+      </div>
     </template>
     <template #title>
       <div class="flex justify-between">
@@ -24,7 +47,7 @@
           <prime-tag :value="languageName" />
         </div>
         <div class="flex flex-col items-end gap-1">
-          <div class="flex gap-2 items-center">
+          <div class="flex gap-2 items-center cursor-pointer" @click="$router.push({ name: 'profile', params: { username } })">
             <h1 class="text-sm">{{ username }}</h1>
             <prime-avatar :image="avatarCache.cache[userId]" v-show="avatarCache.cache[userId]" shape="circle" />
             <prime-avatar icon="pi pi-user" v-show="!avatarCache.cache[userId]" shape="circle" />

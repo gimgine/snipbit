@@ -1,6 +1,13 @@
 <template>
   <div class="flex flex-col">
-    <split-button class="h-12" v-if="pb.authStore.isValid" :model="items" size="small" text>
+    <split-button
+      class="h-12"
+      v-if="pb.authStore.isValid"
+      :model="items"
+      size="small"
+      text
+      @click="$router.push({ name: 'profile', params: { username: pb.authStore.model?.username } })"
+    >
       <template #buttoncontent>
         <div class="flex items-center gap-3">
           <prime-avatar class="mr-3" :image="avatarUrl" v-show="avatarUrl" shape="circle" />

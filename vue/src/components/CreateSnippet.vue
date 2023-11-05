@@ -44,7 +44,7 @@
                 <div
                   class="rounded-sm flex-1 h-5 flex justify-between items-center px-2 truncate border border-[var(--surface-border)] bg-[var(--surface-card)]"
                 >
-                  <span class="text-[0.65rem] text-gray-400 truncate">https://tigerhacks.dev/scribble</span>
+                  <span class="text-[0.65rem] text-gray-400 truncate">https://snipbit.dev/snippet</span>
                   <i class="pi pi-search text-xs"></i>
                 </div>
                 <i class="pi pi-bars text-xs"></i>

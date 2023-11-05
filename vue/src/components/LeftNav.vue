@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center gap-6 mt-6">
-    <prime-button icon="pi pi-home" text rounded size="large" />
+    <prime-button icon="pi pi-home" text rounded size="large" @click="$router.push({ name: 'home' })" />
     <prime-button icon="pi pi-code" text rounded size="large" />
     <prime-button icon="pi pi-users" text rounded size="large" />
   </div>

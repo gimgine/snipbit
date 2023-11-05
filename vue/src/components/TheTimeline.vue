@@ -1,7 +1,13 @@
 <template>
   <tab-view>
     <tab-panel header="Discover">
-      <data-view :value="posts" data-key="id">
+      <data-view
+        :value="posts"
+        data-key="id"
+        :pt="{
+          grid: { class: 'bg-[var(--surface-ground)] gap-8' }
+        }"
+      >
         <template #list="slotProps">
           <timeline-post
             :user-id="slotProps.data.user"
@@ -51,10 +57,12 @@ const posts = ref([] as Array<PostsResponse<ExpandedUserSnippet> & { avatarUrl: 
 const isPostDialogOpen = ref(false);
 const openPostId = ref('');
 
-const getPosts = async () => {
-  const res = await pb.collection(Collections.Posts).getList<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>(undefined, undefined, {
-    expand: 'user,snippet.language,likes(post),comments(post),saves(post)'
-  });
+const reloadTimeline = async () => {
+  const res = await pb
+    .collection(Collections.Posts)
+    .getList<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>(undefined, undefined, {
+      expand: 'user,snippet.language,likes(post),comments(post),saves(post)'
+    });
 
   for (let i = 0; i < res.items.length; i++) {
     avatarCache.getAvatarUrlForId(res.items[i].user);
@@ -63,6 +71,7 @@ const getPosts = async () => {
   posts.value = res.items;
   console.log(posts.value);
 };
+defineExpose({ reloadTimeline });
 
 const openPostDialog = (postId: string) => {
   isPostDialogOpen.value = true;
@@ -80,6 +89,6 @@ const closePostDialog = () => {
 };
 
 onMounted(async () => {
-  getPosts();
+  reloadTimeline();
 });
 </script>

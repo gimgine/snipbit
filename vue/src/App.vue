@@ -12,6 +12,7 @@ import Toast from 'primevue/toast';
 html,
 body,
 #app {
+  background: var(--surface-ground);
   height: 100%;
 }
 </style>

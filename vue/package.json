@@ -13,10 +13,11 @@
     "typegen": "npx pocketbase-typegen --env --out ./src/util/pocketbase-types.ts && npm run format"
   },
   "dependencies": {
+    "@guolao/vue-monaco-editor": "^1.4.0",
     "axios": "^1.4.0",
     "pinia": "^2.1.6",
-    "primeicons": "^6.0.1",
     "pocketbase": "^0.19.0",
+    "primeicons": "^6.0.1",
     "primevue": "^3.39.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

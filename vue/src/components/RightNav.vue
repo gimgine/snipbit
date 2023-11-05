@@ -20,3 +20,9 @@ const items = ref<Array<MenuItem>>([
   }
 ]);
 </script>
+
+<style>
+.p-speeddial {
+  position: fixed !important;
+}
+</style>

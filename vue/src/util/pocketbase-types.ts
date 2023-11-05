@@ -60,23 +60,33 @@ export type FollowingRecord = {
 
 export type LanguagesRecord = {
   isRunnable?: boolean;
+  monacoName?: string;
   name?: string;
 };
 
 export type LikesRecord = {
-  liked?: RecordIdString;
+  post?: RecordIdString;
   user?: RecordIdString;
 };
 
+export enum PostsTypeOptions {
+  'code' = 'code',
+  'htmlcssjs' = 'htmlcssjs',
+  'text' = 'text',
+  'codesandbox' = 'codesandbox',
+  'image' = 'image'
+}
 export type PostsRecord = {
   caption?: string;
-  content?: RecordIdString;
+  snippet?: RecordIdString;
+  type?: PostsTypeOptions;
   user: RecordIdString;
 };
 
 export type SnippetsRecord = {
-  content?: HTMLString;
+  content?: string;
   customLanguage?: string;
+  forkedFrom?: RecordIdString;
   language?: RecordIdString;
   runnable?: boolean;
   title: string;

@@ -10,18 +10,21 @@
       <prime-button
         class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.IMAGE"
+        disabled
         ><i class="pi pi-image text-5xl"></i>
         <p class="italic">share an image</p>
       </prime-button>
       <prime-button
         class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.TEXT"
+        disabled
         ><span class="text-5xl">.txt</span>
         <p class="italic">share some words</p>
       </prime-button>
       <prime-button
         class="w-[calc(50%-0.5rem)] aspect-square flex flex-col justify-center bg-[var(--surface-c)] border-[var(--surface-c)] text-[var(--primary-color)] gap-2"
         @click="active = State.LINK"
+        disabled
         ><i class="pi pi-link text-5xl"></i>
         <p class="italic">share a link</p>
       </prime-button>

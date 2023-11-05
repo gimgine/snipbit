@@ -16,7 +16,7 @@
         </div>
       </template>
     </split-button>
-    <prime-button v-else class="mx-7" label="Sign In" icon="pi pi-sign-in" @click="$router.push({ name: 'login' })" text />
+    <prime-button v-else class="mx-2" label="Sign In" icon="pi pi-sign-in" @click="$router.push({ name: 'login' })" text />
   </div>
 </template>
 

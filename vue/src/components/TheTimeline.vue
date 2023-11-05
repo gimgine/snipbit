@@ -58,18 +58,15 @@ const isPostDialogOpen = ref(false);
 const openPostId = ref('');
 
 const reloadTimeline = async () => {
-  const res = await pb
-    .collection(Collections.Posts)
-    .getList<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>(undefined, undefined, {
-      expand: 'user,snippet.language,likes(post),comments(post),saves(post)'
-    });
+  const res = await pb.collection(Collections.Posts).getList<PostsResponse<ExpandedUserSnippet> & { avatarUrl: string }>(undefined, undefined, {
+    expand: 'user,snippet.language,likes(post),comments(post),saves(post)'
+  });
 
   for (let i = 0; i < res.items.length; i++) {
     avatarCache.getAvatarUrlForId(res.items[i].user);
   }
 
   posts.value = res.items;
-  console.log(posts.value);
 };
 defineExpose({ reloadTimeline });
 

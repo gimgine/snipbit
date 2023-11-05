@@ -2,14 +2,18 @@
   <div class="w-full h-full flex flex-col justify-center gap-16 items-center bg-[var(--surface-ground)]">
     <h1 class="text-5xl font-bold">snipbit</h1>
     <card class="w-80">
-      <template #title
-        ><h1 class="text-center">{{ isNewUser ? 'Create Account' : 'Login Using' }}</h1></template
-      >
+      <template #title>
+        <h1 class="text-center">{{ isNewUser ? 'Create Account' : 'Login/Create Account' }}</h1>
+        <p class="text-center italic text-sm font-normal mt-2 opacity-50">we are password-less</p>
+      </template>
       <template #content>
         <div v-if="!isNewUser" class="flex gap-2 justify-center flex-col">
           <prime-button class="flex justify-center gap-2" @click="authWithOAuth('github')"><i class="pi pi-github"></i>GitHub</prime-button>
-          <prime-button class="flex justify-center gap-2" @click="authWithOAuth('microsoft')"><i class="pi pi-microsoft"></i>Microsoft</prime-button>
-          <prime-button class="flex justify-center gap-2" @click="authWithOAuth('google')"><i class="pi pi-google"></i>Google</prime-button>
+          <prime-button class="flex justify-center gap-2" @click="authWithOAuth('microsoft')" disabled>
+            <i class="pi pi-microsoft" />
+            Microsoft
+          </prime-button>
+          <prime-button class="flex justify-center gap-2" @click="authWithOAuth('google')" disabled><i class="pi pi-google"></i>Google</prime-button>
         </div>
         <div v-else class="flex gap-8 justify-center flex-col">
           <file-upload

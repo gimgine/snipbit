@@ -151,7 +151,6 @@ const updateComments = () => {
     .getFullList<CommentsResponse<{ user: UsersResponse }>>({ filter: `post = "${props.postId}"`, expand: 'user' })
     .then((res) => {
       comments.value = res;
-      console.log(comments.value);
     });
 };
 

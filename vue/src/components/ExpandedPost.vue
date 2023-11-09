@@ -10,7 +10,8 @@
             automaticLayout: true,
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
-            theme: 'vs-dark'
+            theme: 'vs-dark',
+            readOnly: true
           }"
         />
       </tab-panel>
@@ -54,6 +55,7 @@
           v-model="newComment.text"
           autocomplete="off"
           @update:model-value="() => (newComment.error = '')"
+          @keypress.enter="handleCommentClick"
         />
         <label for="newComment">Comment</label>
       </span>
@@ -69,8 +71,8 @@
       >
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <prime-avatar :image="avatarCache.cache[postContent.user]" v-show="avatarCache.cache[postContent.user]" shape="circle" />
-            <prime-avatar icon="pi pi-user" v-show="!avatarCache.cache[postContent.user]" shape="circle" />
+            <prime-avatar :image="avatarCache.cache[comment.user]" v-show="avatarCache.cache[comment.user]" shape="circle" />
+            <prime-avatar icon="pi pi-user" v-show="!avatarCache.cache[comment.user]" shape="circle" />
             <p>{{ comment.expand?.user.username }}:</p>
           </div>
           <p class="italic text-xs mt-1">{{ formatDate(new Date(comment.created)) }}</p>
@@ -148,7 +150,7 @@ const handleCommentClick = () => {
 
 const updateComments = () => {
   pb.collection(Collections.Comments)
-    .getFullList<CommentsResponse<{ user: UsersResponse }>>({ filter: `post = "${props.postId}"`, expand: 'user' })
+    .getFullList<CommentsResponse<{ user: UsersResponse }>>({ filter: `post = "${props.postId}"`, expand: 'user', sort: '-created' })
     .then((res) => {
       comments.value = res;
     });

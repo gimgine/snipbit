@@ -31,7 +31,11 @@
         <strong class="text-xl">{{ user.username }}</strong>
         <span>{{ user.bio }}</span>
         <data-view
-          :value="user.expand ? (user.expand as any)['posts(user)'] : []"
+          :value="
+            user.expand
+              ? (user.expand as any)['posts(user)'].sort((a: any, b: any) => new Date(b.created).getTime() - new Date(a.created).getTime())
+              : []
+          "
           data-key="id"
           class="mt-2"
           :pt="{
@@ -61,6 +65,10 @@
     </div>
     <create-button />
   </div>
+  <prime-dialog v-model:visible="isPostDialogOpen" modal dismissable-mask :style="{ width: '50rem' }">
+    <template #header>&nbsp;</template>
+    <expanded-post ref="expandedPost" :post-id="openPostId" />
+  </prime-dialog>
 </template>
 
 <script setup lang="ts">
@@ -72,15 +80,20 @@ import PrimeAvatar from 'primevue/avatar';
 import PrimeButton from 'primevue/button';
 import pb from '@/pocketbase';
 import { Collections, type UsersResponse } from '@/util/pocketbase-types';
-import { onMounted, ref, type Ref } from 'vue';
+import { nextTick, onMounted, provide, ref, type Ref } from 'vue';
 import { useAvatarCache } from '@/store';
 import TimelinePost from '@/components/TimelinePost.vue';
 import DataView from 'primevue/dataview';
 import { useToast } from 'primevue/usetoast';
+import PrimeDialog from 'primevue/dialog';
+import ExpandedPost from '@/components/ExpandedPost.vue';
 
 const toast = useToast();
 const avatarCache = useAvatarCache();
 const user: Ref<null | UsersResponse> = ref(null);
+const expandedPost = ref({} as InstanceType<typeof ExpandedPost>);
+const isPostDialogOpen = ref(false);
+const openPostId = ref('');
 
 const props = defineProps({
   username: String
@@ -118,6 +131,16 @@ const followUser = () => {
   }
 };
 
+const openPostDialog = (postId: string) => {
+  isPostDialogOpen.value = true;
+  openPostId.value = postId;
+
+  nextTick(() => {
+    expandedPost.value.resetContent();
+  });
+};
+provide('openPostDialog', openPostDialog);
+
 const initialize = async () => {
   const res = await pb
     .collection(Collections.Users)
@@ -128,6 +151,7 @@ const initialize = async () => {
   followersCount.value = (user.value.expand ? (user.value.expand as any)['following(isFollowing)'] : [])?.length ?? 0;
   avatarCache.getAvatarUrlForId(user.value.id);
 };
+provide('reloadTimeline', initialize);
 
 onMounted(() => initialize());
 </script>

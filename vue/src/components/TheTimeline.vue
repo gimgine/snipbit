@@ -59,6 +59,7 @@
   </tab-view>
   <strong class="text-center opacity-20 py-10">You've reached the end of the feed :(</strong>
   <prime-dialog v-model:visible="isPostDialogOpen" modal dismissable-mask :style="{ width: '50rem' }">
+    <template #header>&nbsp;</template>
     <expanded-post ref="expandedPost" :post-id="openPostId" />
   </prime-dialog>
 </template>

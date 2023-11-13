@@ -34,9 +34,12 @@
         <iframe
           ref="iframe"
           class="w-full flex-1 bg-white"
-          :srcdoc="`<html><head><style>${JSON.parse(snippetContent ?? '').css}</style></head><body>${
+          :srcdoc="`<html><head><style>${
+            JSON.parse(snippetContent ?? '').css
+          }</style><script>window.console = { log: function () {}, warn: function () {}, error: function () {}, info: function () {}, debug: function () {} }; window.onerror = () => true</script></head><body>${
             JSON.parse(snippetContent ?? '').html
-          }</body><script>${JSON.parse(snippetContent ?? '').javascript}</script></html>`"
+          }<script>${JSON.parse(snippetContent ?? '').javascript}</script></body></html>`"
+          sandbox="allow-scripts"
         ></iframe>
       </div>
     </template>
